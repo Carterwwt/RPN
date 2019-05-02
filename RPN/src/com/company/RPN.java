@@ -1,10 +1,9 @@
-package com.company;
-
-
-import java.lang.reflect.Array;
+package com.example.calculatortest;
 import java.util.*;
 
 public class RPN {
+
+    final double eps = 1e-10;  // 精度范围
 
     ArrayList<String> infixString = new ArrayList<>(); // 中缀表达式
     ArrayList<String> suffixString = new ArrayList<>(); // 后缀表达式
@@ -12,16 +11,7 @@ public class RPN {
     Stack<String> opStack = new Stack();         //运算符栈
     Map<String,Integer> opMap = new HashMap();   //运算符优先级
 
-
-    public RPN(String input) {
-
-        //分割字符串
-        StringTokenizer stringTokenizer = new StringTokenizer(input, "+-*/()",true);
-        while(stringTokenizer.hasMoreTokens()) {
-            infixString.add(stringTokenizer.nextToken());
-        }
-        System.out.println("中缀表达式：" + infixString);
-
+    public RPN() {
         //存入优先级关系
         opMap.put("(", 0);
         opMap.put("+", 1);
@@ -30,15 +20,22 @@ public class RPN {
         opMap.put("/", 2);
     }
 
-    public void getResult() {
+
+    public String getResult(String input) {
+        //分割字符串
+        infixString.clear();
+        StringTokenizer stringTokenizer = new StringTokenizer(input, "+-*/()",true);
+        while(stringTokenizer.hasMoreTokens()) {
+            infixString.add(stringTokenizer.nextToken());
+        }
+        System.out.println("中缀表达式：" + infixString);
         infixToSuffix();
-        computeSuffix();
+        return computeSuffix();
     }
 
 
     //中缀转后缀
     private void infixToSuffix() {
-
 
         for(String str : infixString) {
             // 如果是运算符
@@ -60,7 +57,7 @@ public class RPN {
 
     }
 
-    private void computeSuffix() {
+    private String computeSuffix() {
 
         Stack<String> suffix = new Stack<>();
 
@@ -68,21 +65,21 @@ public class RPN {
 
             // 如果是操作符,弹出两个元素，并计算结果，将结果入栈
             if(isOperator(str)) {
-                int dr = Integer.parseInt(suffix.pop());
-                int sr = Integer.parseInt(suffix.pop());
-                int result = 0;
+                double dest = Double.parseDouble(suffix.pop());
+                double sour = Double.parseDouble(suffix.pop());
+                double result = 0;
                 switch (str) {
                     case "+":
-                        result = sr + dr;
+                        result = sour + dest;
                         break;
                     case "-":
-                        result = sr - dr;
+                        result = sour - dest;
                         break;
                     case "*":
-                        result = sr * dr;
+                        result = sour * dest;
                         break;
                     case "/":
-                        result = sr / dr;
+                        result = sour / dest;
                         break;
                     default:
                         result = 0;
@@ -96,7 +93,14 @@ public class RPN {
 
         }
 
-        System.out.println("结果是：" + suffix.peek());
+        System.out.println("结果：" + suffix.peek());
+
+        Double value = Double.parseDouble(suffix.peek());
+        System.out.println("转换int后：" + value);
+        if((value % 1 - eps) < 0) {
+            return String.valueOf(value.intValue());
+        }
+        return suffix.peek();
 
     }
 
@@ -149,3 +153,4 @@ public class RPN {
 
 
 }
+
